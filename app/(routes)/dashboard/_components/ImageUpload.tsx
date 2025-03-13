@@ -121,7 +121,6 @@ function ImageUpload() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="gemini-google">Gemini Google</SelectItem>
-              <SelectItem value="llama-by-meta">Llama by Meta</SelectItem>
             </SelectContent>
           </Select>
           <h2 className="text-lg font-bold mt-7">

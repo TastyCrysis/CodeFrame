@@ -4,8 +4,12 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
+import Constants from "@/data/Constants";
+import SelectionDetail from "../_components/SelectionDetail";
+import CodeEditor from "../_components/CodeEditor";
+import AppHeader from "@/app/_components/AppHeader";
 
-interface RECORD {
+export interface RECORD {
   id: number;
   description: string;
   code: any;
@@ -17,6 +21,8 @@ interface RECORD {
 function ViewCode() {
   const { uid } = useParams();
   const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [record, setRecord] = useState<RECORD | null>();
 
   useEffect(() => {
     uid && GetRecordInfo();
@@ -27,8 +33,12 @@ function ViewCode() {
     const result = await axios.get(`/api/wireframe-to-code?uid=${uid}`);
     console.log(result.data);
     const response = result?.data;
-    if (response?.code == null) {
-      GenerateCode(response);
+    setRecord(result?.data);
+    if (
+      response?.code == null ||
+      (response?.code && Object.keys(response.code).length === 0)
+    ) {
+      // GenerateCode(response);
     }
     if (response?.error) {
       console.log("No Record Found");
@@ -38,24 +48,39 @@ function ViewCode() {
 
   const GenerateCode = async (record: RECORD) => {
     setLoading(true);
+    console.log("Generating code with:", {
+      description: record?.description,
+      imageUrl: record?.imageUrl,
+      model: record?.model,
+    });
+
     const response = await fetch("/api/ai-model", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        description: record?.description,
+        description: record?.description + " " + Constants.PROMPT,
         imageUrl: record?.imageUrl,
-        model: record?.model,
+        model: "gemini-google", // Immer Gemini-Modell verwenden
       }),
     });
+
     if (!response.body) return;
+
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      const text = decoder.decode(value);
+      const text = decoder
+        .decode(value)
+        .replace("```typescript", "")
+        .replace("```", "")
+        .replace("```javascript", "")
+        .replace("jsx", "");
+      setCode((prev) => prev + text);
       console.log(text);
     }
     setLoading(false);
@@ -63,8 +88,15 @@ function ViewCode() {
 
   return (
     <div>
-      Test
-      {loading && <LoaderCircle className="animate-spin" />}
+      <AppHeader hideSideBar={true} />
+      <div className="grid grid-cols-1 md:grid-cols-5 p-5 gap-10">
+        <div>
+          <SelectionDetail record={record} />
+        </div>
+        <div className="col-span-4">
+          <CodeEditor />
+        </div>
+      </div>
     </div>
   );
 }
