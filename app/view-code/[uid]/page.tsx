@@ -23,6 +23,7 @@ function ViewCode() {
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState("");
   const [record, setRecord] = useState<RECORD | null>();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     uid && GetRecordInfo();
@@ -38,7 +39,7 @@ function ViewCode() {
       response?.code == null ||
       (response?.code && Object.keys(response.code).length === 0)
     ) {
-      // GenerateCode(response);
+      GenerateCode(response);
     }
     if (response?.error) {
       console.log("No Record Found");
@@ -62,7 +63,7 @@ function ViewCode() {
       body: JSON.stringify({
         description: record?.description + " " + Constants.PROMPT,
         imageUrl: record?.imageUrl,
-        model: "gemini-google", // Immer Gemini-Modell verwenden
+        model: "google/gemini-2.0-pro-exp-02-05:free", // Immer Gemini-Modell verwenden
       }),
     });
 
@@ -83,6 +84,7 @@ function ViewCode() {
       setCode((prev) => prev + text);
       console.log(text);
     }
+    setIsReady(true);
     setLoading(false);
   };
 
@@ -94,7 +96,7 @@ function ViewCode() {
           <SelectionDetail record={record} />
         </div>
         <div className="col-span-4">
-          <CodeEditor />
+          <CodeEditor code={code} isReady={isReady} />
         </div>
       </div>
     </div>
