@@ -78,6 +78,8 @@ function ViewCode() {
       const text = decoder
         .decode(value)
         .replace("```typescript", "")
+        .replace("typescript", "")
+        .replace("javascript", "")
         .replace("```", "")
         .replace("```javascript", "")
         .replace("jsx", "");

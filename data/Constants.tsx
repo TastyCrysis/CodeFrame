@@ -18,6 +18,7 @@ export default {
      - If you use React hooks like useState or useEffect, import them directly
      - Use Tailwind CSS classes for styling - DO NOT USE ARBITRARY VALUES (e.g. \h-[600px]\)
      - Use a consistent, modern color palette throughout the page
+     - Use JavaScript (.js) as the language for the React component
      - Add appropriate spacing with margin and padding to ensure components are well-organized
      - Enhance the basic wireframe with professional UI/UX design elements
      - Make the design responsive for different screen sizes
